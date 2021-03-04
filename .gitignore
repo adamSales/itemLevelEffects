@@ -1,0 +1,7 @@
+oldStuff/*
+*.RData
+*.xlsx
+*.csv
+*.jpg
+*.zip
+*~
