@@ -142,7 +142,7 @@ c12 <- vc[2,4]
 ccc <- v1+c12
 r <- ccc/sqrt(v1*(v1+v2+2*c12))
 
-desc <- read.csv('problemDesc.csv')
+desc <- read.csv('CT/problemDesc.csv')
 
 desc$type <- with(desc,
                   ifelse(solve,'solve',
@@ -160,8 +160,15 @@ eff$type <- desc$type[match(eff$item,desc$Problem)]
 
 eff%>%group_by(type,est)%>%summarize(avg=mean(effect))%>%spread(est,avg)
 
-pd <- filter(eff,est=='rasch1')%>%arrange(type)%>%group_by(year)%>%mutate(newnum=1:n())
-ggplot(pd,aes(newnum,effect,color=year,group=year))+geom_point()+geom_line()+geom_hline(yintercept=0,linetype='dotted')
+pd <- eff%>%arrange(type)%>%group_by(year)%>%mutate(newnum=1:n())
+
+eff%>%group_by(level,year,type)%>%mutate(newnum=1:n())%>%ungroup()%>%ggplot(aes(newnum,effect,color=factor(year)))+geom_point()+geom_line()+geom_hline(yintercept=0,linetype='dotted')+
+    facet_grid(level~type)+
+     theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())+
+
 
 pd <- filter(eff,est=='rasch1')%>%
     mutate(effect2=ifelse(year==1,
