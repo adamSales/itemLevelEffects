@@ -5,3 +5,7 @@ oldStuff/*
 *.jpg
 *.zip
 *~
+edm_latex/*
+*.log
+*.bbl
+assistmentsMaine/data/*
