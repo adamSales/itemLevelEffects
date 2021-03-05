@@ -2,10 +2,11 @@ oldStuff/*
 *.RData
 *.xlsx
 *.csv
-*.jpg
 *.zip
 *~
 edm_latex/*
 *.log
 *.bbl
 assistmentsMaine/data/*
+assistmentsMaine/ShayanTerraData-20210204T220452Z-001/*
+assistmentsMaine/Terranova Data/*

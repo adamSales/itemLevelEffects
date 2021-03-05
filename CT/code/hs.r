@@ -28,14 +28,14 @@ save(rasch1.1,file='rasch1.1hs.RData')
 
 rasch1.2 <- glmer(resp~treatment+xirt+(treatment|prob)+(1|field_id)+(1|classid2)+(1|schoolid2),
                 family=binomial,data=datLong,subset=year==2)
-save(rasch2,file='rasch1.2hs.RData')
+save(rasch1.2,file='rasch1.2hs.RData')
 
 ### test for different effects
 yr1test <- anova(rasch1.1,
-                 update(rasch1.1,.~.-(treatment|prob)+(1|prob),REML=FALSE))
+                 update(rasch1.1,.~.-(treatment|prob)+(1|prob)))
 
 yr2test <- anova(rasch1.2,
-                 update(rasch1.2,.~.-(treatment|prob)+(1|prob),REML=FALSE))
+                 update(rasch1.2,.~.-(treatment|prob)+(1|prob)))
 save(yr1test,yr2test,file='hsLRTs.RData')
 
 datLong$year2 <- datLong$year-1
@@ -53,7 +53,7 @@ desc <- read.csv('problemDesc2.csv')
 
 datLong$type <- desc$type[match(datLong$prob,desc$Problem)]
 
-rasch2.2 <- update(rasch2,.~.+type+type:treatment)
+rasch2.2 <- update(rasch2,.~.+(treatment|type))
 save(rasch2.2,file='byTypeHS.RData')
 
 

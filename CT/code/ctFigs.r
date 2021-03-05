@@ -2,7 +2,7 @@ require(xtable)
 require(tidyverse)
 require(lme4)
 
-load('CT/rasch2.RData')
+load('CT/rasch2hs.RData')
 rasch2hs <- rasch2
 load('CT/rasch2ms.RData')
 rasch2ms <- rasch2
@@ -16,7 +16,7 @@ effHS <- getEffCT(rasch2hs,reHS)%>%mutate(level='HS')
 eff <- bind_rows(effMS,effHS)%>%mutate(level=factor(level,levels=c('MS','HS')))
 
 ### add in problem type
-desc <- read.csv('CT/problemDesc2.csv')
+desc <- read.csv('problemDesc2.csv')
 
 ## desc$type <- with(desc,
 ##                   ifelse(solve,'solve',
@@ -42,7 +42,7 @@ eff%>%
 facet_wrap(~level,nrow=2)+labs(x='Item',y='Treatment Effect (Logit Scale)',color='Year')
 ggsave('ctEffects.jpg',width=6.5,height=4)
 
-eff%>%group_by(level,year,type)%>%mutate(newnum=1:n())%>%ungroup()%>%
+eff%>%group_by(level,year,type)%>%mutate(newnum=1:n(),type=gsub(' ','\n',type))%>%ungroup()%>%
     ggplot(aes(newnum,effect,color=factor(year),label=ifelse(year==2,item,'')))+
     geom_point()+
     geom_text(nudge_y=.1,color='black')+
@@ -54,7 +54,7 @@ eff%>%group_by(level,year,type)%>%mutate(newnum=1:n())%>%ungroup()%>%
         axis.ticks.x = element_blank())+
     labs(y='Treatment Effect (Logit Scale)',color='Year')
 
-ggsave('ctEffectsType.jpg',width=6.5,height=4)
+ggsave('ctEffectsType.jpg',width=6.5,height=3)
 
 desc%>%
     select(Problem,`Main Skill`=Main.skill,Notes=notes,Type=type)%>%
@@ -79,3 +79,28 @@ desc%>%
     xtable(caption="Objectives required for the 32 items of the Algebra Proficiency
   Exam, the posttest for the CTA1 Evaluation",label="tab:ctSkills",align=c('c','p{2.5in}','p{1in}','p{2.5in}'))%>%
 print(file='CTposttest.tex',include.rownames=FALSE,floating.environment="table*")
+
+
+### treatment effect variance
+vcovMS <- VarCorr(rasch2ms)
+SDms1 <- sqrt(vcovMS$prob['treatment','treatment'])
+SDms2 <- sqrt(vcovMS$prob['treatment','treatment']+vcovMS$prob['treatment:year2','treatment:year2']+2*vcovMS$prob['treatment','treatment:year2'])
+
+### correlation between years
+## first covariance Cov(g1,g1+g3)=var(g1)+cov(g1,g3)
+Cms <- vcovMS$prob['treatment','treatment']+vcovMS$prob['treatment','treatment:year2']
+rhoMS <- Cms/SDms1/SDms2
+
+### se for effect in hs year 2
+sehs2 <- sqrt(vcov(rasch2hs)['treatment','treatment']+vcov(rasch2hs)['treatment:year2','treatment:year2']+2*vcov(rasch2hs)['treatment','treatment:year2'])
+
+### treatment effect variance
+vcovHS <- VarCorr(rasch2hs)
+SDhs1 <- sqrt(vcovHS$prob['treatment','treatment'])
+SDhs2 <- sqrt(vcovHS$prob['treatment','treatment']+vcovHS$prob['treatment:year2','treatment:year2']+2*vcovHS$prob['treatment','treatment:year2'])
+
+### correlation between years
+## first covariance Cov(g1,g1+g3)=var(g1)+cov(g1,g3)
+Chs <- vcovHS$prob['treatment','treatment']+vcovHS$prob['treatment','treatment:year2']
+rhoHS <- Chs/SDhs1/SDhs2
+
